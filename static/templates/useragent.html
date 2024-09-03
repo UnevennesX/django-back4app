@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Antidetect</title>
+</head>
+<body>
+    <h1>Generador de Antidetect</h1>
+    <form id="userAgentForm">
+        <label for="userAgent">User-Agent:</label>
+        <input type="text" id="userAgent" name="userAgent" required>
+        <button type="submit">Generar ZIP</button>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        document.getElementById('userAgentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Obtener el User-Agent del formulario
+            const userAgent = document.getElementById('userAgent').value;
+
+            // Crear contenido del script Python con la interpolación correcta
+            const scriptContent = `
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+chrome_options = Options()
+chrome_options.add_argument("--disable-web-security")
+chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument("--disable-flash")
+chrome_options.add_argument("--disable-java")
+chrome_options.add_argument("--disable-activex")
+chrome_options.add_argument("--disable-webrtc")
+chrome_options.add_argument("--disable-vbscript")
+chrome_options.add_argument("--disable-adblock")
+chrome_options.add_argument(f"user-agent={userAgent}")
+
+driver = webdriver.Chrome(options=chrome_options)
+driver.get("http://www.example.com")
+print("Título de la página:", driver.title)
+driver.quit()
+`;
+
+            // Crear un archivo ZIP
+            const zip = new JSZip();
+            zip.file("antidetect_script.py", scriptContent);
+
+            // Generar y descargar el archivo ZIP
+            zip.generateAsync({type: "blob"})
+                .then(function(content) {
+                    saveAs(content, "antidetect_program.zip");
+                });
+        });
+    </script>
+</body>
+</html>
